@@ -7,7 +7,7 @@
  * @copyright    MIT Lesser General Public License
  * 
  * @author [email](yfrobot@qq.com)
- * @date  2022-03-05
+ * @date  2022-11-10
 */
 
 enum LEDONOFF {
@@ -19,9 +19,9 @@ enum LEDONOFF {
 
 enum LEDN {
     //% block="D1"
-    P5,
+    0,
     //% block="D2"
-    P11
+    1
 }
 
 enum CARDIR {
