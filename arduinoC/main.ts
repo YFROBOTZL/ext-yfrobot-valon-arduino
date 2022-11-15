@@ -110,6 +110,35 @@ namespace valon {
     //     }
     // }
 
+        
+    let valonoTone = `ValonTone`;
+    export enum VALONBEAT {
+        //% block="1/2"
+        500,
+        //% block="1/4"
+        250,
+        //% block="1/8"
+        125,
+        //% block="整拍"
+        1000,
+        //% block="双拍"
+        2000,
+        //% block="停止"
+        0,
+    }
+    
+    //% block="蜂鸣器音调为[TONE]节拍为[BEAT]" blockType="command"
+    //% TONE.shadow="note" TONE.defl=247
+    //% BEAT.shadow="dropdown" BEAT.options="valon.VALONBEAT"" BEAT.defl="valon.VALONBEAT.500"
+    export function buzzerTone(parameter: any, block: any) {
+        let tone = parameter.TONE.code;
+        let beat = parameter.BEAT.code;
+        Generator.addInclude(`Include_DFRobot_Libraries`, `#include <DFRobot_Libraries.h>`)
+        Generator.addObject(`DFRobot_Tone`, `DFRobot_Tone`, `${valonoTone};`);
+        Generator.addCode(`${valonoTone}.play(11, ${tone}, ${beat});`);
+    }
+
+
     //% block="Valon robot at [SPEED] speed [DIR]" blockType="command"
     //% SPEED.shadow="range"   SPEED.params.min=0    SPEED.params.max=255    SPEED.defl=200
     //% DIR.shadow="dropdown" DIR.options="CARDIR" DIR.defl="CARDIR.0"
@@ -273,22 +302,38 @@ namespace valon {
         Generator.addCode(`motorDrive(${mot},0,0);`);
     }
 
-    //% block="Valon robot Patrol sensor [ENABLE]" blockType="command"
-    //% ENABLE.shadow="dropdown" ENABLE.options="ENDIS" ENABLE.defl="ENDIS.HIGH"
-    export function patrolSensorEnable(parameter: any, block: any) {
-        let en = parameter.ENABLE.code;
-        Generator.addCode(`digitalWrite(P1, ${en});`);
+    // //% block="Valon robot Patrol sensor [ENABLE]" blockType="command"
+    // //% ENABLE.shadow="dropdown" ENABLE.options="ENDIS" ENABLE.defl="ENDIS.HIGH"
+    // export function patrolSensorEnable(parameter: any, block: any) {
+    //     let en = parameter.ENABLE.code;
+    //     Generator.addCode(`digitalWrite(P1, ${en});`);
+    // }
+
+    // //% block="[PSN] patrol sensor on black line" blockType="boolean"
+    // //% PSN.shadow="dropdown" PSN.options="PINP"" PSN.defl="PINP.P0"
+    // export function readPatrolSensor(parameter: any, block: any) {
+    //     let psn = parameter.PSN.code;
+    //     if(psn === `P3`){
+    //         Generator.addCode(`(analogRead(${psn}) == 0)`);
+    //     } else {
+    //         Generator.addCode(`(digitalRead(${psn}) == 0)`);
+    //     }
+    // }
+
+    let qtrA = `qtrA`;
+    //% block="Valon 巡线传感器初始化" blockType="command"
+    export function qtrInit(parameter: any, block: any) {
+        Generator.addInclude(`QTRSensors`,`#include "QTRSensors.h"`);
+        Generator.addObject(`QTRSensorsObject`, `QTRSensors`, `${qtrA}`);
+        Generator.addSetup(`${qtrA}.setTypeAnalog`, `${qtrA}.setTypeAnalog();`);
+        Generator.addSetup(`${qtrA}.setEmitterPin`, `${qtrA}.setEmitterPin(10);`);
+        Generator.addSetup(`${qtrA}.setSensorPins`, `${qtrA}.setSensorPins((const uint8_t[]){A0,A1,A2,A3,A6},5);`);
+        Generator.addSetup(`${qtrA}.setSamplesPerSensor`, `${qtrA}.setSamplesPerSensor(4);`);
     }
 
-    //% block="[PSN] patrol sensor on black line" blockType="boolean"
-    //% PSN.shadow="dropdown" PSN.options="PINP"" PSN.defl="PINP.P0"
-    export function readPatrolSensor(parameter: any, block: any) {
-        let psn = parameter.PSN.code;
-        if(psn === `P3`){
-            Generator.addCode(`(analogRead(${psn}) == 0)`);
-        } else {
-            Generator.addCode(`(digitalRead(${psn}) == 0)`);
-        }
+    //% block="Valon 巡线传感器校准" blockType="command"
+    export function calibrate(parameter: any, block: any) {
+        Generator.addCode(`${qtrA}.calibrate();`);
     }
 
     //% block="patrol sensors state [PSNS]" blockType="boolean"
@@ -318,34 +363,6 @@ namespace valon {
         Generator.addInclude("include_DFRobot_URM10", `#include <DFRobot_URM10.h>`);
         Generator.addObject("object_DFRobot_URM10_valon", `DFRobot_URM10`, `valon_sr04;`);
         Generator.addCode(`valon_sr04.getDistanceCM(P8,P9)`);
-    }
-
-    
-    let valonoTone = `ValonTone`;
-    export enum VALONBEAT {
-        //% block="1/2"
-        500,
-        //% block="1/4"
-        250,
-        //% block="1/8"
-        125,
-        //% block="整拍"
-        1000,
-        //% block="双拍"
-        2000,
-        //% block="停止"
-        0,
-    }
-    
-    //% block="蜂鸣器音调为[TONE]节拍为[BEAT]" blockType="command"
-    //% TONE.shadow="note" TONE.defl=247
-    //% BEAT.shadow="dropdown" BEAT.options="valon.VALONBEAT"" BEAT.defl="valon.VALONBEAT.500"
-    export function buzzerTone(parameter: any, block: any) {
-        let tone = parameter.TONE.code;
-        let beat = parameter.BEAT.code;
-        Generator.addInclude(`Include_DFRobot_Libraries`, `#include <DFRobot_Libraries.h>`)
-        Generator.addObject(`DFRobot_Tone`, `DFRobot_Tone`, `${valonoTone};`);
-        Generator.addCode(`${valonoTone}.play(11, ${tone}, ${beat});`);
     }
 
     //% block="---"
