@@ -65,6 +65,19 @@ enum PINP {
     P3
 }
 
+enum LFSENSORSNUM {
+    //% blockId="LFS_1" block="●○○○○"
+    0,
+    //% blockId="LFS_2" block="○●○○○"
+    1,
+    //% blockId="LFS_3" block="○○●○○"
+    2,
+    //% blockId="LFS_4" block="○○○●○"
+    3,
+    //% blockId="LFS_5" block="○○○○●"
+    4
+}
+
 enum PSSTATE {
     //% block="○●○"
     S0,
@@ -320,6 +333,10 @@ namespace valon {
     //     }
     // }
 
+
+    //% "dftesde"
+    export function noteSep3() { }
+
     let qtrA = `qtrA`;
     //% block="Valon 巡线传感器初始化" blockType="command"
     export function qtrInit(parameter: any, block: any) {
@@ -331,14 +348,43 @@ namespace valon {
         Generator.addSetup(`${qtrA}.setSamplesPerSensor`, `${qtrA}.setSamplesPerSensor(4);`);
     }
 
-    //% block="Valon 巡线传感器校准" blockType="command"
-    export function calibrate(parameter: any, block: any) {
+    //% block="Valon 巡线传感器校准(自动获取值)" blockType="command"
+    export function qtrCalibrate(parameter: any, block: any) {
         Generator.addCode(`${qtrA}.calibrate();`);
+    }
+
+    //% block="Valon 巡线传感器设置校准值最小值[MIN]最大值[MAX]" blockType="command"
+    //% MIN.shadow="range"   MIN.params.min=0    MIN.params.max=500    MIN.defl=250
+    //% MAX.shadow="range"   MAX.params.min=501    MAX.params.max=1000    MAX.defl=800
+    export function qtrCalibrateSet(parameter: any, block: any) {
+        let minval = parameter.MIN.code;
+        let maxval = parameter.MAX.code;
+        Generator.addCode(`for (int i = 0; i < 5; i++) \n        ${qtrA}.calibratedMinimumOn[i] = ${minval};`);
+        Generator.addCode(`for (int i = 0; i < 5; i++) \n        ${qtrA}.calibratedMaximumOn[i] = ${maxval};`);
+    }
+
+    //% block="Valon 读取巡线传感器值存入数组[SENSORVALUE]中，并返回位置值" blockType="reporter"
+    //% SENSORVALUE.shadow="string"   SENSORVALUE.defl="sv"
+    export function qtrReadSensors_LineBlack(parameter: any, block: any) {
+        let sensorvalue = parameter.SENSORVALUE.code;
+        sensorvalue = sensorvalue.replace(/"/g, ""); //去除字符串引号
+        Generator.addInclude(`define_qtr${sensorvalue}`, `uint16_t ${sensorvalue}[5];`);
+        Generator.addCode(`${qtrA}.readLineBlack(${sensorvalue});`);
+    }
+
+    //% block="[SENSORVALUE][SVALUE]值" blockType="reporter"
+    //% SENSORVALUE.shadow="string"   SENSORVALUE.defl="sv"
+    //% SVALUE.shadow="dropdown"   SVALUE.options="LFSENSORSNUM"     SD.defl="LFSENSORSNUM.0"
+    export function qtrSensorsValue(parameter: any, block: any) {
+        let sensorvalue = parameter.SENSORVALUE.code;
+        let sValue = parameter.SVALUE.code;
+        sensorvalue = sensorvalue.replace(/"/g, ""); //去除字符串引号
+        Generator.addCode(`${sensorvalue}[${sValue}]`);
     }
 
     //% block="patrol sensors state [PSNS]" blockType="boolean"
     //% PSNS.shadow="dropdown" PSNS.options="PSSTATE"" PSNS.defl="PSSTATE.S0"
-    export function readPatrolSensors(parameter: any, block: any) {
+    export function qtrReadSensors_S(parameter: any, block: any) {
         let psns = parameter.PSNS.code;
         if(psns === `S0`) {
             Generator.addCode(`(digitalRead(P0) != 0)&&(digitalRead(P2) == 0)&&(analogRead(P3) != 0)`);
