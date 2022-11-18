@@ -12,9 +12,9 @@
 
 enum LEDONOFF {
     //% block="OFF"
-    LOW,
+    HIGH,
     //% block="ON"
-    HIGH
+    LOW
 }
 
 enum LEDN {
@@ -78,6 +78,25 @@ enum LFSENSORSNUM {
     4
 }
 
+enum LFSENSORSNUM_MX {
+    //% blockId="LFS_MAX" block="最大值"
+    calibratedMaximumOn,
+    //% blockId="LFS_MIN" block="最小值"
+    calibratedMinimumOn
+}
+enum LFSENSORSNUM_M {
+    //% blockId="LFS_11" block="1"
+    0,
+    //% blockId="LFS_22" block="2"
+    1,
+    //% blockId="LFS_33" block="3"
+    2,
+    //% blockId="LFS_44" block="4"
+    3,
+    //% blockId="LFS_55" block="5"
+    4
+}
+
 enum PSSTATE {
     //% block="○●○"
     S0,
@@ -99,7 +118,7 @@ enum PSSTATE {
 namespace valon {
 
     //% block="set [LED] output [LEDSTATE]" blockType="command"
-    //% LED.shadow="dropdown" LED.options="LEDN" LED.defl="LEDN.P5"
+    //% LED.shadow="dropdown" LED.options="LEDN" LED.defl="LEDN.D1"
     //% LEDSTATE.shadow="dropdown" LEDSTATE.options="LEDONOFF" LEDSTATE.defl="LEDONOFF.HIGH"
     export function LED(parameter: any, block: any) {
         let led = parameter.LED.code;
@@ -335,17 +354,19 @@ namespace valon {
 
 
     //% "dftesde"
-    export function noteSep3() { }
+    export function noteSep0() { }
 
     let qtrA = `qtrA`;
-    //% block="Valon 巡线传感器初始化" blockType="command"
+    //% block="Valon 巡线传感器初始化配置" blockType="command"
     export function qtrInit(parameter: any, block: any) {
         Generator.addInclude(`QTRSensors`,`#include "QTRSensors.h"`);
-        Generator.addObject(`QTRSensorsObject`, `QTRSensors`, `${qtrA}`);
-        Generator.addSetup(`${qtrA}.setTypeAnalog`, `${qtrA}.setTypeAnalog();`);
-        Generator.addSetup(`${qtrA}.setEmitterPin`, `${qtrA}.setEmitterPin(10);`);
-        Generator.addSetup(`${qtrA}.setSensorPins`, `${qtrA}.setSensorPins((const uint8_t[]){A0,A1,A2,A3,A6},5);`);
-        Generator.addSetup(`${qtrA}.setSamplesPerSensor`, `${qtrA}.setSamplesPerSensor(4);`);
+        //5-number of sensors used, 4-average 4 analog samples per sensor reading, 10-emitter is controlled 
+        Generator.addObject(`QTRSensorsAnalogObject`, `QTRSensorsAnalog`, `${qtrA}((unsigned char[]) {A0, A1, A2, A3, A6}, 5, 4, 10)`);
+        // 旧版库文件
+        // Generator.addSetup(`${qtrA}.setTypeAnalog`, `${qtrA}.setTypeAnalog();`);
+        // Generator.addSetup(`${qtrA}.setEmitterPin`, `${qtrA}.setEmitterPin(10);`);
+        // Generator.addSetup(`${qtrA}.setSensorPins`, `${qtrA}.setSensorPins((const uint8_t[]){A0,A1,A2,A3,A6},5);`);
+        // Generator.addSetup(`${qtrA}.setSamplesPerSensor`, `${qtrA}.setSamplesPerSensor(4);`);
     }
 
     //% block="Valon 巡线传感器校准(自动获取值)" blockType="command"
@@ -353,6 +374,15 @@ namespace valon {
         Generator.addCode(`${qtrA}.calibrate();`);
     }
 
+    //% block="Valon 巡线传感器校准值[MX][M]" blockType="reporter"
+    //% MX.shadow="dropdown"   MX.options="LFSENSORSNUM_MX"     MX.defl="LFSENSORSNUM_MX.0"
+    //% M.shadow="dropdownRound"   M.options="LFSENSORSNUM_M"     M.defl="LFSENSORSNUM_M.0"
+    export function qtrCalibrateM(parameter: any, block: any) {
+        let mx = parameter.MX.code;
+        let m = parameter.M.code;
+        Generator.addCode(`${qtrA}.${mx}[${m}]`);
+    }
+    
     //% block="Valon 巡线传感器设置校准值最小值[MIN]最大值[MAX]" blockType="command"
     //% MIN.shadow="range"   MIN.params.min=0    MIN.params.max=500    MIN.defl=250
     //% MAX.shadow="range"   MAX.params.min=501    MAX.params.max=1000    MAX.defl=800
@@ -363,18 +393,18 @@ namespace valon {
         Generator.addCode(`for (int i = 0; i < 5; i++) \n        ${qtrA}.calibratedMaximumOn[i] = ${maxval};`);
     }
 
-    //% block="Valon 读取巡线传感器值存入数组[SENSORVALUE]中，并返回位置值" blockType="reporter"
+    //% block="Valon 读巡线传感器值存入数组[SENSORVALUE]，并返回位置值" blockType="reporter"
     //% SENSORVALUE.shadow="string"   SENSORVALUE.defl="sv"
-    export function qtrReadSensors_LineBlack(parameter: any, block: any) {
+    export function qtrReadSensors_Line(parameter: any, block: any) {
         let sensorvalue = parameter.SENSORVALUE.code;
         sensorvalue = sensorvalue.replace(/"/g, ""); //去除字符串引号
         Generator.addInclude(`define_qtr${sensorvalue}`, `uint16_t ${sensorvalue}[5];`);
-        Generator.addCode(`${qtrA}.readLineBlack(${sensorvalue});`);
+        Generator.addCode(`${qtrA}.readLine(${sensorvalue})`);
     }
 
     //% block="[SENSORVALUE][SVALUE]值" blockType="reporter"
     //% SENSORVALUE.shadow="string"   SENSORVALUE.defl="sv"
-    //% SVALUE.shadow="dropdown"   SVALUE.options="LFSENSORSNUM"     SD.defl="LFSENSORSNUM.0"
+    //% SVALUE.shadow="dropdownRound"   SVALUE.options="LFSENSORSNUM"     SVALUE.defl="LFSENSORSNUM.0"
     export function qtrSensorsValue(parameter: any, block: any) {
         let sensorvalue = parameter.SENSORVALUE.code;
         let sValue = parameter.SVALUE.code;
@@ -408,7 +438,7 @@ namespace valon {
     export function readUlrasonicSensor(parameter: any, block: any) {
         Generator.addInclude("include_DFRobot_URM10", `#include <DFRobot_URM10.h>`);
         Generator.addObject("object_DFRobot_URM10_valon", `DFRobot_URM10`, `valon_sr04;`);
-        Generator.addCode(`valon_sr04.getDistanceCM(P8,P9)`);
+        Generator.addCode(`valon_sr04.getDistanceCM(12,13)`);
     }
 
     //% block="---"
@@ -416,7 +446,15 @@ namespace valon {
     //% block="---"
     export function noteSep2() { }
 
+    //% block="读取电池电压" blockType="reporter"
+    export function readVoltage(parameter: any, block: any) {
+        Generator.addCode(`(float)(analogRead(A7)*0.01955)`);
+    }
 
+    //% block="---"
+    export function noteSep3() { }
+    //% block="---"
+    export function noteSep4() { }
 
     let valonoled = `valon_oled`;
 

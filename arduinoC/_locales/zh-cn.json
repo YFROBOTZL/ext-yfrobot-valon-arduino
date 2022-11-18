@@ -1,7 +1,7 @@
 {
     "valon.LED|block": "设置 [LED] 输出 [LEDSTATE]",
-    "valon.LEDONOFF.LOW|menu": "关闭",
-    "valon.LEDONOFF.HIGH|menu": "打开",
+    "valon.LEDONOFF.LOW|menu": "打开",
+    "valon.LEDONOFF.HIGH|menu": "关闭",
     "valon.carDrive|block": "Valon机器人以[SPEED] 速度 [DIR]",
     "valon.CARDIR.0|menu": "前进",
     "valon.CARDIR.1|menu": "后退",
