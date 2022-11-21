@@ -411,28 +411,6 @@ namespace valon {
         sensorvalue = sensorvalue.replace(/"/g, ""); //去除字符串引号
         Generator.addCode(`${sensorvalue}[${sValue}]`);
     }
-
-    //% block="patrol sensors state [PSNS]" blockType="boolean"
-    //% PSNS.shadow="dropdown" PSNS.options="PSSTATE"" PSNS.defl="PSSTATE.S0"
-    export function qtrReadSensors_S(parameter: any, block: any) {
-        let psns = parameter.PSNS.code;
-        if(psns === `S0`) {
-            Generator.addCode(`(digitalRead(P0) != 0)&&(digitalRead(P2) == 0)&&(analogRead(P3) != 0)`);
-        } else if(psns === `S1`) {
-            Generator.addCode(`(digitalRead(P0) == 0)&&(digitalRead(P2) != 0)&&(analogRead(P3) != 0)`);
-        } else if(psns === `S2`) {
-            Generator.addCode(`(digitalRead(P0) != 0)&&(digitalRead(P2) != 0)&&(analogRead(P3) == 0)`);
-        } else if(psns === `S3`) {
-            Generator.addCode(`(digitalRead(P0) == 0)&&(digitalRead(P2) == 0)&&(analogRead(P3) == 0)`);
-        } else if(psns === `S4`) {
-            Generator.addCode(`(digitalRead(P0) != 0)&&(digitalRead(P2) != 0)&&(analogRead(P3) != 0)`);
-        } else if(psns === `S5`) {
-            Generator.addCode(`(digitalRead(P0) == 0)&&(digitalRead(P2) == 0)&&(analogRead(P3) != 0)`);
-        } else if(psns === `S6`) {
-            Generator.addCode(`(digitalRead(P0) != 0)&&(digitalRead(P2) == 0)&&(analogRead(P3) == 0)`);
-        }
-    }
-
     
     //% block="read ulrasonic sensor Unit cm" blockType="reporter"
     export function readUlrasonicSensor(parameter: any, block: any) {
@@ -448,13 +426,8 @@ namespace valon {
 
     //% block="读取电池电压" blockType="reporter"
     export function readVoltage(parameter: any, block: any) {
-        Generator.addCode(`(float)(analogRead(A7)*0.01955)`);
+        Generator.addCode(`(float)((int)(analogRead(A7)*1.955))/100`);
     }
-
-    //% block="---"
-    export function noteSep3() { }
-    //% block="---"
-    export function noteSep4() { }
 
     let valonoled = `valon_oled`;
 
