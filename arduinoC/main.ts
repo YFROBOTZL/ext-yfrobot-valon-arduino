@@ -114,6 +114,70 @@ enum PSSTATE {
     S6,
 }
 
+enum IrButton {
+    //% block="A"
+    0xFFA25D,
+    //% block="B"
+    0xFF629D,
+    //% block="C"
+    0xFFE21D,
+    //% block="D"
+    0xFF22DD,
+    //% block="︿"
+    0xFF02FD,
+    //% block="E"
+    0xFFC23D,
+    //% block="＜"
+    0xFFE01F,
+    //% block="۞"
+    0xFFA857,
+    //% block="＞"
+    0xFF906F,
+    //% block="0"
+    0xFF6897,
+    //% block="﹀"
+    0xFF9867,
+    //% block="F"
+    0xFFB04F,
+    //% block="1"
+    0xFF30CF,
+    //% block="2"
+    0xFF18E7,
+    //% block="3"
+    0xFF7A85,
+    //% block="4"
+    0xFF10EF,
+    //% block="5"
+    0xFF38C7,
+    //% block="6"
+    0xFF5AA5,
+    //% block="7"
+    0xFF42BD,
+    //% block="8"
+    0xFF4AB5,
+    //% block="9"
+    0xFF52AD,
+}
+
+enum IrButtonHandle {
+    //% block="↑"
+    0xE49B11EE,
+    //% block="↓"
+    0xE49B916E,
+    //% block="←"
+    0xE49B817E,
+    //% block="→"
+    0xE49BA15E,
+    //% block="M1"
+    0xE49BE916,
+    //% block="M2"
+    0xE49B6996,
+    //% block="A"
+    0xE49B21DE,
+    //% block="B"
+    0xE49B01FE,
+}
+
 //% color="#0eb83a" iconWidth=50 iconHeight=40
 namespace valon {
 
@@ -470,6 +534,41 @@ namespace valon {
         Generator.addObject(`DFRobot_SSD1306_I2C`, `DFRobot_SSD1306_I2C`, `${valonoled};`);
         Generator.addSetup(`${valonoled}.begin`, `${valonoled}.begin(0x3d);`);
         Generator.addCode(`${valonoled}.fillScreen(0);`);
+    }
+    let irpin = `A0`;
+    let irObject = `irrecv`;
+    //% block="是否读取到引脚A0红外值" blockType="boolean"
+    export function readIR(parameter: any, block: any) {
+        Generator.addInclude(`Include_IRremote`, `#include <IRremote.h>`)
+        Generator.addObject(`Object_IRrecv`, `IRrecv`, `${irObject}(${irpin});`);
+        Generator.addSetup(`${irObject}.enableIRIn`, `${irObject}.enableIRIn();`);
+        Generator.addInclude(`Include_decode_results`,`decode_results  results;`);
+        Generator.addCode(`${irObject}.decode(&results)`);
+    }
+
+    //% block="读到的红外值" blockType="reporter"
+    export function IRVal(parameter: any, block: any) {
+        Generator.addCode(`results.value`);
+    }
+
+    //% block="恢复读取红外值" blockType="command"
+    export function readIRResume(parameter: any, block: any) {
+        Generator.addCode(`${irObject}.resume();`);
+    }
+    
+    
+    //% block="红外遥控器[BTN]值" blockType="reporter"
+    //% BTN.shadow="dropdown"   BTN.options="IrButton"     BTN.defl=IrButton.0xFFA25D
+    export function IRMiniValue(parameter: any, block: any) {
+        let minibtnval = parameter.BTN.code;
+        Generator.addCode(`${minibtnval}`);
+    }
+
+    //% block="红外遥控器[BTNH]值(手柄式)" blockType="reporter"
+    //% BTNH.shadow="dropdown"   BTNH.options="IrButtonHandle"     BTNH.defl=IrButtonHandle.0xE49BE916
+    export function IRHandleValue(parameter: any, block: any) {
+        let Handlebtnval = parameter.BTNH.code;
+        Generator.addCode(`${Handlebtnval}`);
     }
 
 }
