@@ -556,7 +556,6 @@ namespace valon {
         Generator.addCode(`${irObject}.resume();`);
     }
     
-    
     //% block="红外遥控器[BTN]值" blockType="reporter"
     //% BTN.shadow="dropdown"   BTN.options="IrButton"     BTN.defl=IrButton.0xFFA25D
     export function IRMiniValue(parameter: any, block: any) {
