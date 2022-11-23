@@ -49,22 +49,6 @@ enum MOTORDIR {
     1
 }
 
-enum ENDIS {
-    //% block="ENABLE"
-    HIGH,
-    //% block="DISABLE"
-    LOW
-}
-
-enum PINP {
-    //% block="left"
-    P0,
-    //% block="middle"
-    P2,
-    //% block="right"
-    P3
-}
-
 enum LFSENSORSNUM {
     //% blockId="LFS_1" block="●○○○○"
     0,
@@ -84,6 +68,7 @@ enum LFSENSORSNUM_MX {
     //% blockId="LFS_MIN" block="最小值"
     calibratedMinimumOn
 }
+
 enum LFSENSORSNUM_M {
     //% blockId="LFS_11" block="1"
     0,
@@ -398,24 +383,6 @@ namespace valon {
         Generator.addCode(`motorDrive(${mot},0,0);`);
     }
 
-    // //% block="Valon robot Patrol sensor [ENABLE]" blockType="command"
-    // //% ENABLE.shadow="dropdown" ENABLE.options="ENDIS" ENABLE.defl="ENDIS.HIGH"
-    // export function patrolSensorEnable(parameter: any, block: any) {
-    //     let en = parameter.ENABLE.code;
-    //     Generator.addCode(`digitalWrite(P1, ${en});`);
-    // }
-
-    // //% block="[PSN] patrol sensor on black line" blockType="boolean"
-    // //% PSN.shadow="dropdown" PSN.options="PINP"" PSN.defl="PINP.P0"
-    // export function readPatrolSensor(parameter: any, block: any) {
-    //     let psn = parameter.PSN.code;
-    //     if(psn === `P3`){
-    //         Generator.addCode(`(analogRead(${psn}) == 0)`);
-    //     } else {
-    //         Generator.addCode(`(digitalRead(${psn}) == 0)`);
-    //     }
-    // }
-
 
     //% "dftesde"
     export function noteSep0() { }
@@ -433,7 +400,7 @@ namespace valon {
         // Generator.addSetup(`${qtrA}.setSamplesPerSensor`, `${qtrA}.setSamplesPerSensor(4);`);
     }
 
-    //% block="Valon 巡线传感器校准(自动获取值)" blockType="command"
+    //% block="Valon 巡线传感器手动校准(请将所有巡线传感器扫过黑线)" blockType="command"
     export function qtrCalibrate(parameter: any, block: any) {
         Generator.addCode(`${qtrA}.calibrate();`);
     }
@@ -502,9 +469,18 @@ namespace valon {
         Generator.addSetup(`${valonoled}.begin`, `${valonoled}.begin(0x3d);`);
     }
 
+    //% externalFunc
+    export function validateStr_(str) {
+        let regx: RegExp = /^[a-z0-9]{1,8}\.[a-z0-9]{1,3}$/;
+        if (!regx.test(str)) {
+            return null;
+        }
+        return str;
+    }
+
     //% block="OLED 第[LINE]行 显示[STRING]" blockType="command"
     //% LINE.shadow="range"   LINE.params.min=1    LINE.params.max=4    LINE.defl=1
-    //% STRING.shadow="string"   STRING.defl="valon"
+    //% STRING.shadow="string"   STRING.defl="valon" 
     export function oledShowLine(parameter: any, block: any) {
         let line = parameter.LINE.code;
         let string = parameter.STRING.code;
