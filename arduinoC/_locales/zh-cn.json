@@ -7,6 +7,8 @@
     "valon.CARDIR.1|menu": "后退",
     "valon.CARDIR.2|menu": "右转",
     "valon.CARDIR.3|menu": "左转",
+    "valon.CARDIR.4|menu": "大右转",
+    "valon.CARDIR.5|menu": "大左转",
     "valon.carStop|block": "Valon机器人停止",
     "valon.motorDrive|block": "Valon机器人[MOT]电机以[SPEED] 速度 [DIR]",
     "valon.MOTORN.0|menu": "右",

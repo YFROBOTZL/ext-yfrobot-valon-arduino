@@ -32,7 +32,11 @@ enum CARDIR {
     //% block="TURNRIGHT"
     2,
     //% block="TURNLEFT"
-    3
+    3,
+    //% block="BIGTURNRIGHT"
+    4,
+    //% block="BIGTURNLEFT"
+    5
 }
 
 enum MOTORN {
@@ -241,6 +245,12 @@ namespace valon {
             `  } else if (dir == 3) {   // 左转\n`+
             `    motorDrive(0, speed, 0);\n`+
             `    motorDrive(1, speed/2, 0);\n`+
+            `  } else if (dir == 4) {   // 全右转\n`+
+            `    motorDrive(0, 0, 0);\n`+
+            `    motorDrive(1, speed, 0);\n`+
+            `  } else if (dir == 5) {   // 全左转\n`+
+            `    motorDrive(0, speed, 0);\n`+
+            `    motorDrive(1, 0, 0);\n`+
             `  }\n`+
             `}`
         );
@@ -288,6 +298,12 @@ namespace valon {
             `  } else if (dir == 3) {   // 左转\n`+
             `    motorDrive(0, speed, 0);\n`+
             `    motorDrive(1, speed/2, 0);\n`+
+            `  } else if (dir == 4) {   // 全右转\n`+
+            `    motorDrive(0, 0, 0);\n`+
+            `    motorDrive(1, speed, 0);\n`+
+            `  } else if (dir == 5) {   // 全左转\n`+
+            `    motorDrive(0, speed, 0);\n`+
+            `    motorDrive(1, 0, 0);\n`+
             `  }\n`+
             `}`
         );
