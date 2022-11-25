@@ -436,8 +436,9 @@ namespace valon {
     export function qtrCalibrateSet(parameter: any, block: any) {
         let minval = parameter.MIN.code;
         let maxval = parameter.MAX.code;
-        Generator.addCode(`for (int i = 0; i < 5; i++) \n        ${qtrA}.calibratedMinimumOn[i] = ${minval};`);
-        Generator.addCode(`for (int i = 0; i < 5; i++) \n        ${qtrA}.calibratedMaximumOn[i] = ${maxval};`);
+        Generator.addCode(`${qtrA}.calibrate();`);
+        Generator.addCode(`for (int i = 0; i < 5; i++) \n    ${qtrA}.calibratedMinimumOn[i] = ${minval};`);
+        Generator.addCode(`for (int i = 0; i < 5; i++) \n    ${qtrA}.calibratedMaximumOn[i] = ${maxval};`);
     }
 
     //% block="Valon 读巡线传感器值存入数组[SENSORVALUE]，并返回位置值" blockType="reporter"
