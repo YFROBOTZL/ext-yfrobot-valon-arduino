@@ -167,7 +167,7 @@ enum IrButtonHandle {
     0xE49B01FE,
 }
 
-enum VALONBEAT {
+enum ValonBEAT {
     //% block="1/2"
     500,
     //% block="1/4"
@@ -193,29 +193,11 @@ namespace valon {
         let ledState = parameter.LEDSTATE.code;
         Generator.addCode(`digitalWrite(${led},${ledState});`);
     }
-
-    // // block="set [OUTPUTMODULEANALOG] on [OAMPIN] output [OAMSTATE]" blockType="command"
-    // // OUTPUTMODULEANALOG.shadow="dropdown" OUTPUTMODULEANALOG.options="OMAANALOG" OUTPUTMODULEANALOG.defl="OMAANALOG.LED"
-    // // OAMPIN.shadow="dropdown" OAMPIN.options="PIN_AnalogWrite"
-    // // OAMSTATE.shadow="range"   OAMSTATE.params.min=0    OAMSTATE.params.max=255    OAMSTATE.defl=200
-    // export function outputAnalogModule(parameter: any, block: any) {
-    //     let outputModule = parameter.OUTPUTMODULEANALOG.code;
-    //     let outputModulePin = parameter.OAMPIN.code;
-    //     let outputModuleState = parameter.OAMSTATE.code;
-    //     if(Generator.board === 'esp32'){//如果是掌控板，生成如下代码
-    //         Generator.addCode(`pwmv = map(${outputModuleState}, 0, 255, 0, 1023);`);
-    //         Generator.addCode(`analogWrite(${outputModulePin},pwmv);`);
-    //     }else{
-    //         Generator.addCode(`analogWrite(${outputModulePin},${outputModuleState});`);
-    //     }
-    // }
-
         
     let valonoTone = `ValonTone`;
-    
     //% block="蜂鸣器音调为[TONE]节拍为[BEAT]" blockType="command"
     //% TONE.shadow="note" TONE.defl=247
-    //% BEAT.shadow="dropdown" BEAT.options="VALONBEAT"" BEAT.defl="VALONBEAT.500"
+    //% BEAT.shadow="dropdown" BEAT.options="ValonBEAT"" BEAT.defl="ValonBEAT.500"
     export function buzzerTone(parameter: any, block: any) {
         let tone = parameter.TONE.code;
         let beat = parameter.BEAT.code;
