@@ -167,6 +167,21 @@ enum IrButtonHandle {
     0xE49B01FE,
 }
 
+enum VALONBEAT {
+    //% block="1/2"
+    500,
+    //% block="1/4"
+    250,
+    //% block="1/8"
+    125,
+    //% block="整拍"
+    1000,
+    //% block="双拍"
+    2000,
+    //% block="停止"
+    0,
+}
+
 //% color="#0eb83a" iconWidth=50 iconHeight=40
 namespace valon {
 
@@ -197,24 +212,10 @@ namespace valon {
 
         
     let valonoTone = `ValonTone`;
-    export enum VALONBEAT {
-        //% block="1/2"
-        500,
-        //% block="1/4"
-        250,
-        //% block="1/8"
-        125,
-        //% block="整拍"
-        1000,
-        //% block="双拍"
-        2000,
-        //% block="停止"
-        0,
-    }
     
     //% block="蜂鸣器音调为[TONE]节拍为[BEAT]" blockType="command"
     //% TONE.shadow="note" TONE.defl=247
-    //% BEAT.shadow="dropdown" BEAT.options="valon.VALONBEAT"" BEAT.defl="valon.VALONBEAT.500"
+    //% BEAT.shadow="dropdown" BEAT.options="VALONBEAT"" BEAT.defl="VALONBEAT.500"
     export function buzzerTone(parameter: any, block: any) {
         let tone = parameter.TONE.code;
         let beat = parameter.BEAT.code;
