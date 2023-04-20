@@ -182,6 +182,57 @@ enum ValonBEAT {
     0,
 }
 
+enum BT_C_VALUE {
+    //% block="BUTTON"
+    0x65,
+    //% block="JOYSTICK"
+    0x70,
+    //% block="COLORLIGHT"
+    0x64,
+    //% block="SWLED"
+    0x66,
+    //% block="SWBuzzer"
+    0x67,
+    //% block="SWRelay"
+    0x68,
+    //% block="SWOther"
+    0x69
+}
+
+enum BTVALUE {
+    //% block="BTNVALUE"
+    BTN,
+    //% block="JOY_LEFT"
+    JOYL,
+    //% block="JOY_RIGHT"
+    JOYR,
+    //% block="COLOR_MODE"
+    COLOR_MODE,
+    //% block="COLOR_RED"
+    COLOR_RED,
+    //% block="COLOR_GREEN"
+    COLOR_GREEN,
+    //% block="COLOR_BLUE"
+    COLOR_BLUE,
+    //% block="SWLED_VALUE"
+    SWLED_VALUE,
+    //% block="SWBuzzer_VALUE"
+    SWBuzzer_VALUE,
+    //% block="SWRelay_VALUE"
+    SWRelay_VALUE,
+    //% block="SWOther_VALUE"
+    SWOther_VALUE
+}
+
+enum S_BAUD {
+    //% block="9600"
+    9600,
+    //% block="115200"
+    115200
+}
+
+
+
 //% color="#0eb83a" iconWidth=50 iconHeight=40
 namespace valon {
 
@@ -544,6 +595,87 @@ namespace valon {
     export function IRHandleValue(parameter: any, block: any) {
         let Handlebtnval = parameter.BTNH.code;
         Generator.addCode(`${Handlebtnval}`);
+    }
+
+    //% block="ArduinoUNOBT BAUD [BAUD] receive data is valid?" blockType="boolean"
+    //% BAUD.shadow="dropdown" BAUD.options="S_BAUD"" BAUD.defl="S_BAUD.9600"
+    export function ArduinoUNOBTReceiveDataValid(parameter: any, block: any) {  
+        
+        let baud=parameter.BAUD.code;
+        Generator.addInclude('ArduinoUNOBTInitinclude_object', `static uint8_t inBuf[5]; // 数据接收数组变量\n`+
+        `uint8_t SerialReceiveData();\n`);
+        
+        Generator.addSetup("ArduinoUNOBTInitsetup", `Serial.begin(${baud});`);
+
+        Generator.addInclude(`defineSerialReceiveDataFun`, ``+
+            `uint8_t SerialReceiveData() {\n`+
+            `  uint8_t c;\n`+
+            `  static uint8_t offset, dataSize;\n`+
+            `  static uint32_t checksum;\n`+
+            `  static enum _serial_state {IDLE, HEADER_START, HEADER_M, HEADER_ARROW, HEADER_SIZE, HEADER_CMD, }  c_state = IDLE;\n`+
+            `  while (Serial.available()) {\n`+
+            `    c = Serial.read();                             // 读串口缓冲区\n`+
+            `    delayMicroseconds(1);\n`+
+            `    if (c_state == IDLE) {                           // 串口状态空闲,等待 HEADER_START 状态的到来\n`+
+            `      c_state = (c == '$') ? HEADER_START : IDLE;    // 判定是$字符吗？是则进入 HEADER_START 状态 \n`+
+            `      if (c_state == IDLE) {}                        // evaluate all other incoming serial data\n`+
+            `    } else if (c_state == HEADER_START) {\n`+
+            `      c_state = (c == 'M') ? HEADER_M : IDLE;        // 判定是M字符吗？是则进入HEADER_M状态\n`+
+            `    } else if (c_state == HEADER_M) {\n`+
+            `      c_state = (c == 0x3E) ? HEADER_ARROW : IDLE;   // 判定是>字符吗？是则进入HEADER_ARROW状态\n`+
+            `    } else if (c_state == HEADER_ARROW) {            // 是ARROW字符，进入HEADER_ARROW状态，判定缓冲区的大小\n`+
+            `      if (c > 10) {                                  // now we are expecting the payload size 我们期望足够的数据占用缓冲区\n`+
+            `        c_state = IDLE;                              // 数据位置不够 退出循环\n`+
+            `        continue;                                    // 不执行该while循环包含的后面的语句，跳出开始下一轮循环 \n`+
+            `      }\n`+
+            `      dataSize = c;\n`+
+            `      offset = 0;\n`+
+            `      checksum = 0;\n`+
+            `      checksum ^= c;                                 // 校验和 1  -  dataSize\n`+
+            `      c_state = HEADER_SIZE;                         // the command is to follow 接收到数据长度，进入HEADER_SIZE状态\n`+
+            `    } else if (c_state == HEADER_SIZE) {\n`+
+            `      inBuf[offset] = c;                             // 接收 指令(code)\n`+
+            `      checksum ^= c;                                 // 校验和 2  -  code\n`+
+            `      c_state = HEADER_CMD;                          // 接收到指令，进入HEADER_CMD状态\n`+
+            `    } else if (c_state == HEADER_CMD && offset < dataSize) {\n`+
+            `      checksum ^= c;                                 // 校验和 2  -  data\n`+
+            `      inBuf[offset+1] = c;\n`+
+            `      offset++;\n`+
+            `    } else if (c_state == HEADER_CMD && offset >= dataSize) {\n`+
+            `      c_state = IDLE;                                // 数据有效与否都返回IDLE状态，准备重新接收数据\n`+
+            `      if ((checksum & 0xFF) == c)  return 0x01;      // 数据有效\n`+
+            `    }\n`+
+            `  }\n`+
+            `  return 0x00;                                   // 默认返回，返回0x00\n`+
+            `}`
+        );
+
+        Generator.addCode('SerialReceiveData()');
+    }
+
+    //% block="ArduinoUNOBT receive [BJ] CMD" blockType="boolean"
+    //% BJ.shadow="dropdown" BJ.options="BT_C_VALUE"" BJ.defl="BT_C_VALUE.0x65"
+    export function ArduinoUNOBTBJ(parameter: any, block: any) {
+        let bj_val=parameter.BJ.code;
+        Generator.addCode(`inBuf[0]==${bj_val}?1:0`);
+    }
+
+    //% block="ArduinoUNOBT receive [CMD]" blockType="reporter"
+    //% CMD.shadow="dropdown" CMD.options="BTVALUE"" CMD.defl="BTVALUE.BTN"
+    export function ArduinoUNOBTReceiveData(parameter: any, block: any) {
+        
+        let val=parameter.CMD.code;
+        if(val == 'BTN' || val == 'JOYL' || val == 'COLOR_MODE'
+        || val == 'SWLED_VALUE' || val == 'SWBuzzer_VALUE'
+        || val == 'SWRelay_VALUE' || val == 'SWOther_VALUE')
+            Generator.addCode(`inBuf[1]`);
+        else if(val == 'JOYR' || val == 'COLOR_RED')
+            Generator.addCode(`inBuf[2]`);
+        else if(val == 'COLOR_GREEN')
+            Generator.addCode(`inBuf[3]`);
+        else if(val == 'COLOR_BLUE')
+            Generator.addCode(`inBuf[4]`);
+
     }
 
 }

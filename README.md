@@ -12,7 +12,7 @@
 
 
 ## 相关链接 Links
-* 本项目加载链接: https://github.com/YFROBOT-TM
+* 本项目加载链接: https://github.com/YFROBOTZL/ext-yfrobot-valon-arduino
 
 * 产品购买链接: [YFROBOT商城](https://www.yfrobot.com/)、[YFROBOT淘宝商城](https://yfrobot.taobao.com/).
 
@@ -37,6 +37,9 @@ Arduino        |             |        √已测试      |             |
 
 
 ## 更新日志 Release Note
+* V0.0.4  新增扩展包功能，Mind+V1.7.3 RC3.0版本软件测试
+* V0.0.3  匹配测试，Mind+V1.7.2 RC3.0版本软件测试
+* V0.0.2  匹配测试，Mind+V1.7.2 RC3.0版本软件测试
 * V0.0.1  基础功能完成，Mind+V1.7.1 RC2.0版本软件测试
 
 
